@@ -1,0 +1,3 @@
+# Services module initialization
+from services.writing_service import WritingTestService, get_writing_service
+from services.writing_evaluation_service import WritingEvaluationService, get_writing_evaluation_service
