@@ -143,7 +143,8 @@ async def generate_writing_test(
         return test_data
     
     except SchemaValidationError as e:
-        logger.error(f"Schema validation error: {e.message}", exc_info=True)
+        logger.error(f"Schema validation error: {e.message}")
+        logger.error(f"Schema validation details: {e.details}")
         raise HTTPException(
             status_code=400 if "module" in str(e.message).lower() else 500,
             detail={

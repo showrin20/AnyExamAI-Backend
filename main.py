@@ -4,6 +4,7 @@ IELTS Test Generation API - FastAPI Backend
 Endpoints:
 - GET /api/ielts/reading
 - GET /api/ielts/writing
+- GET /api/ielts/listening
 """
 
 import logging

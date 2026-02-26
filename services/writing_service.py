@@ -492,6 +492,31 @@ Generate the complete test NOW with FULL sample responses (not placeholders). Re
         logger.info("Normalizing writing test data for frontend")
         tasks = data.get("tasks", [])
         
+        # IELTS Writing must have exactly 2 tasks - trim any extras
+        if len(tasks) > 2:
+            logger.warning(f"Received {len(tasks)} tasks, trimming to 2 tasks (Task 1 and Task 2 only)")
+            # Keep only Task 1 and Task 2 based on task_number
+            task_1 = None
+            task_2 = None
+            for task in tasks:
+                task_num = task.get("task_number")
+                if task_num == 1 and task_1 is None:
+                    task_1 = task
+                elif task_num == 2 and task_2 is None:
+                    task_2 = task
+            
+            # If we found both tasks by task_number, use them; otherwise take first two
+            if task_1 and task_2:
+                tasks = [task_1, task_2]
+            else:
+                tasks = tasks[:2]
+                # Ensure task numbers are correct
+                tasks[0]["task_number"] = 1
+                tasks[1]["task_number"] = 2
+            
+            data["tasks"] = tasks
+            logger.info(f"Trimmed to {len(tasks)} tasks")
+        
         for task_idx, task in enumerate(tasks, 1):
             task_num = task.get("task_number", task_idx)
             task_type = task.get("task_type", "unknown")
