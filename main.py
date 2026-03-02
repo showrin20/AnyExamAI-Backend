@@ -1,5 +1,5 @@
 """
-IELTS Test Generation API - FastAPI Backend
+AnyExamAI - Exam Generation API (FastAPI Backend)
 
 Endpoints:
 - GET /api/ielts/reading
@@ -13,11 +13,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
+
+import gradio as gr
 
 from core.config import get_settings
 from core.exceptions import IELTSAPIException
 from routers.ielts import router as ielts_router
+from routers.speaking import create_speaking_app
 
 
 # --------------------------------------------------
@@ -44,10 +47,10 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
-    logger.info("Starting IELTS API")
+    logger.info("Starting AnyExamAI API")
     logger.info(f"CORS Origins: {settings.cors_origins}")
     yield
-    logger.info("Shutting down IELTS API")
+    logger.info("Shutting down AnyExamAI API")
 
 
 # --------------------------------------------------
@@ -56,7 +59,7 @@ async def lifespan(app: FastAPI):
 settings = get_settings()
 
 app = FastAPI(
-    title="IELTS Test Generation API",
+    title="AnyExamAI",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -130,6 +133,23 @@ async def root():
 
 # IELTS Router
 app.include_router(ielts_router)
+
+
+@app.get(
+    "/api/ielts/speaking",
+    tags=["IELTS"],
+    summary="IELTS Speaking Mock Test",
+    description="Opens the interactive IELTS Speaking Mock Test UI powered by an AI examiner. "
+                "Redirects to the Gradio-based speaking test interface at `/speaking`.",
+)
+async def speaking_test():
+    """Redirect to the IELTS Speaking Test Gradio UI."""
+    return RedirectResponse(url="/speaking")
+
+
+# Speaking Test (Gradio UI) — mounted at /speaking
+speaking_app = create_speaking_app()
+app = gr.mount_gradio_app(app, speaking_app, path="/speaking")
 
 
 # --------------------------------------------------

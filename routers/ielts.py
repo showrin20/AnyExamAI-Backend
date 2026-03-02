@@ -15,5 +15,5 @@ router = APIRouter(prefix="/api/ielts", tags=["IELTS"])
 # Include sub-routers
 router.include_router(reading_router)
 router.include_router(writing_router)
-router.include_router(writing_evaluation_router, tags=["Writing Evaluation"])
-router.include_router(listening_router, tags=["Listening"])
+router.include_router(writing_evaluation_router)
+router.include_router(listening_router)
